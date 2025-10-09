@@ -1,14 +1,25 @@
-##Spring Configuration
 server:
   port: 8080
 spring:
   application:
-    name: notification-service
+    name: "notification-service"
   devtools:
     add-properties: false
   h2:
     console:
       enabled: true
-      path: /h2
+      path: "/h2"
   profiles:
-    include:
+    include: null
+entrypoint:
+  sqs:
+    region: "us-east-1"
+    queueUrl: ${QUEUE_URL}
+    waitTimeSeconds: 20
+    maxNumberOfMessages: 10
+    visibilityTimeoutSeconds: 30
+    numberOfThreads: 1
+aws:
+  ses:
+    region: "us-east-1"
+    sourceEmail: "notifications@greenswap.xyz"
