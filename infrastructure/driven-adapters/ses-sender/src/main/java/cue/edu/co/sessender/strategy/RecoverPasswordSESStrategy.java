@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.ses.model.SendTemplatedEmailRequest;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Map;
 
 @Component
