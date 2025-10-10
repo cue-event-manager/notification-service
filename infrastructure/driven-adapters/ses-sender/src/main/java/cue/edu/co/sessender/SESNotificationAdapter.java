@@ -2,7 +2,7 @@ package cue.edu.co.sessender;
 
 import cue.edu.co.model.common.Event;
 import cue.edu.co.model.notification.gateways.EmailNotificationSender;
-import cue.edu.co.sessender.strategy.SesTemplateStrategy;
+import cue.edu.co.sessender.strategy.SESTemplateStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class SESNotificationAdapter implements EmailNotificationSender {
     @Override
     public void send(Event event) {
         try {
-            SesTemplateStrategy strategy = templateResolver.resolve(event.getType());
+            SESTemplateStrategy strategy = templateResolver.resolve(event.getType());
             SendTemplatedEmailRequest request = strategy.buildRequest(event);
 
             sesClient.sendTemplatedEmail(request);

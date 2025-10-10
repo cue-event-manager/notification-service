@@ -10,16 +10,14 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.ses.model.SendTemplatedEmailRequest;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.Map;
 
 @Component
-public class RecoverPasswordSesStrategy extends BaseSESTemplateStrategy<RecoverPasswordEvent> {
+public class RecoverPasswordSESStrategy extends BaseSESTemplateStrategy<RecoverPasswordEvent> {
 
     private static final String TEMPLATE_ID = "RecoverPasswordTemplate";
 
-    public RecoverPasswordSesStrategy(SESProperties properties, ObjectMapper objectMapper) {
+    public RecoverPasswordSESStrategy(SESProperties properties, ObjectMapper objectMapper) {
         super(properties, objectMapper);
     }
 

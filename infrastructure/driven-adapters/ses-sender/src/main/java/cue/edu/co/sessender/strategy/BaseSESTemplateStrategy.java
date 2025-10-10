@@ -10,7 +10,7 @@ import java.util.Map;
 
 
 @RequiredArgsConstructor
-public abstract class BaseSESTemplateStrategy<T> implements SesTemplateStrategy {
+public abstract class BaseSESTemplateStrategy<T> implements SESTemplateStrategy {
 
     protected final SESProperties properties;
     protected final ObjectMapper objectMapper;
