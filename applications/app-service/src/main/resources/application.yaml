@@ -1,25 +1,20 @@
 server:
-  port: 8080
+  port: 8083
+
 spring:
   application:
-    name: "notification-service"
-  devtools:
-    add-properties: false
-  h2:
-    console:
-      enabled: true
-      path: "/h2"
-  profiles:
-    include: null
+    name: notification-service
+
 entrypoint:
   sqs:
-    region: "us-east-1"
+    region: ${AWS_REGION:us-east-1}
     queueUrl: ${QUEUE_URL}
     waitTimeSeconds: 20
     maxNumberOfMessages: 10
     visibilityTimeoutSeconds: 30
     numberOfThreads: 1
+
 aws:
   ses:
-    region: "us-east-1"
-    sourceEmail: "notifications@greenswap.xyz"
+    region: ${AWS_REGION:us-east-1}
+    sourceEmail: ${AWS_SES_SOURCE_EMAIL}

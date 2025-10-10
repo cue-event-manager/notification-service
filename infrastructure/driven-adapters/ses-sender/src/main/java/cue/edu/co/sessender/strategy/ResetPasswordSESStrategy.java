@@ -1,9 +1,10 @@
 package cue.edu.co.sessender.strategy;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cue.edu.co.model.common.Event;
 import cue.edu.co.model.common.constants.EventType;
+import cue.edu.co.model.notification.events.PasswordResetEvent;
 import cue.edu.co.model.notification.events.RecoverPasswordEvent;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import cue.edu.co.sessender.config.SESProperties;
 import cue.edu.co.sessender.utils.DateFormatterUtil;
 import org.springframework.stereotype.Component;
@@ -13,31 +14,30 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Component
-public class RecoverPasswordSESStrategy extends BaseSESTemplateStrategy<RecoverPasswordEvent> {
+public class ResetPasswordSESStrategy extends BaseSESTemplateStrategy<PasswordResetEvent> {
 
-    private static final String TEMPLATE_ID = "RecoverPasswordTemplate";
+    private static final String TEMPLATE_ID = "PasswordResetTemplate";
 
-    public RecoverPasswordSESStrategy(SESProperties properties, ObjectMapper objectMapper) {
+    public ResetPasswordSESStrategy(SESProperties properties, ObjectMapper objectMapper) {
         super(properties, objectMapper);
     }
 
     @Override
     public String getEventType() {
-        return EventType.RECOVER_PASSWORD.getType();
+        return EventType.PASSWORD_RESET.getType();
     }
 
     @Override
     public SendTemplatedEmailRequest buildRequest(Event event) {
-        RecoverPasswordEvent payload = parsePayload(event, RecoverPasswordEvent.class);
-        String expiration = DateFormatterUtil.formatDate(LocalDateTime.parse(payload.getExpirationTime()));
+        PasswordResetEvent payload = parsePayload(event, PasswordResetEvent.class);
+        String occurredAt = DateFormatterUtil.formatDate(LocalDateTime.parse(payload.getOccurredAt()));
 
         return buildRequest(
                 payload.getEmail(),
                 TEMPLATE_ID,
                 Map.of(
                         "name", payload.getName(),
-                        "recoveryCode", payload.getRecoveryCode(),
-                        "expirationTime", expiration
+                        "occurredAt", occurredAt
                 )
         );
     }
