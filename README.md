@@ -1,47 +1,111 @@
-# Proyecto Base Implementando Clean Architecture
+# Notification Service
 
-## Antes de Iniciar
+## Overview
 
-Empezaremos por explicar los diferentes componentes del proyectos y partiremos de los componentes externos, continuando con los componentes core de negocio (dominio) y por último el inicio y configuración de la aplicación.
+The **Notification Service** is responsible for handling all notifications within the CUE Event Management System. It manages the delivery of emails, in-app alerts, and system notifications triggered by other microservices. This service ensures reliable and asynchronous communication through AWS SNS and SQS.
 
-Lee el artículo [Clean Architecture — Aislando los detalles](https://medium.com/bancolombia-tech/clean-architecture-aislando-los-detalles-4f9530f35d7a)
+---
 
-# Arquitectura
+## Purpose
 
-![Clean Architecture](https://miro.medium.com/max/1400/1*ZdlHz8B0-qu9Y-QO3AXR_w.png)
+The Notification Service centralizes the management of all system-generated messages to guarantee consistency and scalability. It operates asynchronously using message queues to prevent blocking operations in other services. Its main responsibilities include:
 
-## Domain
+* Receiving notification events via **AWS SNS** and **SQS**.
+* Sending transactional and system emails via **Amazon SES**.
+* Handling notification templates for dynamic content.
+* Logging delivery results and errors for traceability.
 
-Es el módulo más interno de la arquitectura, pertenece a la capa del dominio y encapsula la lógica y reglas del negocio mediante modelos y entidades del dominio.
+---
 
-## Usecases
+## Versions
 
-Este módulo gradle perteneciente a la capa del dominio, implementa los casos de uso del sistema, define lógica de aplicación y reacciona a las invocaciones desde el módulo de entry points, orquestando los flujos hacia el módulo de entities.
+| Component                                   | Version |
+| ------------------------------------------- | ------- |
+| **Java**                                    | 21      |
+| **Spring Boot**                             | 3.5.4   |
+| **Gradle**                                  | 8.14.3  |
+| **Bancolombia Clean Architecture Scaffold** | 3.26.1  |
 
-## Infrastructure
+---
 
-### Helpers
+## Architecture
 
-En el apartado de helpers tendremos utilidades generales para los Driven Adapters y Entry Points.
+The Notification Service follows the **Bancolombia Clean Architecture Scaffold**, ensuring scalability and decoupled communication between layers.
 
-Estas utilidades no están arraigadas a objetos concretos, se realiza el uso de generics para modelar comportamientos
-genéricos de los diferentes objetos de persistencia que puedan existir, este tipo de implementaciones se realizan
-basadas en el patrón de diseño [Unit of Work y Repository](https://medium.com/@krzychukosobudzki/repository-design-pattern-bc490b256006)
+```
+notification-service/
+├── applications/             # Application entry points and configurations
+├── domain/                   # Core entities, use cases, and models
+├── infrastructure/            # Adapters for AWS SNS/SQS, SES, and persistence
+├── build.gradle               # Gradle configuration
+└── settings.gradle            # Project settings
+```
 
-Estas clases no puede existir solas y debe heredarse su compartimiento en los **Driven Adapters**
+### Layers
 
-### Driven Adapters
+* **Domain:** Contains models for `Notification`, `Template`, and `Recipient`.
+* **Use Cases:** Implements logic for event consumption, email dispatch, and status tracking.
+* **Infrastructure:** Integrates with AWS SNS, SQS, and SES clients.
+* **Entry Points:** Exposes health and monitoring endpoints.
 
-Los driven adapter representan implementaciones externas a nuestro sistema, como lo son conexiones a servicios rest,
-soap, bases de datos, lectura de archivos planos, y en concreto cualquier origen y fuente de datos con la que debamos
-interactuar.
+---
 
-### Entry Points
+## Environment Variables
 
-Los entry points representan los puntos de entrada de la aplicación o el inicio de los flujos de negocio.
+Below are the required environment variables for the Notification Service:
 
-## Application
+```bash
+# -----------------------------------
+# Server Configuration
+# -----------------------------------
+SERVER_PORT=8080
+SPRING_PROFILES_ACTIVE=dev
 
-Este módulo es el más externo de la arquitectura, es el encargado de ensamblar los distintos módulos, resolver las dependencias y crear los beans de los casos de use (UseCases) de forma automática, inyectando en éstos instancias concretas de las dependencias declaradas. Además inicia la aplicación (es el único módulo del proyecto donde encontraremos la función “public static void main(String[] args)”.
+# -----------------------------------
+# AWS Configuration
+# -----------------------------------
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=your-aws-access-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret-key
 
-**Los beans de los casos de uso se disponibilizan automaticamente gracias a un '@ComponentScan' ubicado en esta capa.**
+# -----------------------------------
+# SNS & SQS Configuration
+# -----------------------------------
+NOTIFICATION_QUEUE_URL=https://sqs.us-east-1.amazonaws.com/123456789012/notification-queue
+
+# -----------------------------------
+# SES (Email Sending)
+# -----------------------------------
+AWS_SES_SOURCE_EMAIL=notifications@cue.edu.co
+AWS_SES_TEMPLATE_BUCKET=cue-email-templates
+EMAIL_SENDER_NAME=CUE Event Manager
+
+# -----------------------------------
+# Internal Communication
+# -----------------------------------
+INTERNAL_SECRET=your-internal-service-secret
+EUREKA_URL=http://discovery-service:8761/eureka/
+
+# -----------------------------------
+# Logging Configuration
+# -----------------------------------
+LOGGING_LEVEL_ROOT=INFO
+LOGGING_LEVEL_CO.EDU.CUE=DEBUG
+```
+
+---
+
+## Key Features
+
+* **Asynchronous Processing:** Handles notifications through AWS SQS message queues.
+* **Email Delivery:** Uses **Amazon SES** for transactional and templated emails.
+* **Multi-channel Support:** Designed to support future channels such as SMS or push notifications.
+* **Retry Mechanism:** Failed messages are retried automatically using AWS DLQ (Dead Letter Queue).
+* **Template Engine:** Dynamic email templates stored in S3 for flexible content management.
+
+---
+
+## Security
+
+* All inter-service communication is secured via the `INTERNAL_SECRET`.
+* AWS credentials are stored securely using environment variables or AWS Secrets Manager
