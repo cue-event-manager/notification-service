@@ -1,5 +1,4 @@
 package cue.edu.co.model.common;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
